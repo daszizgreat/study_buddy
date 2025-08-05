@@ -146,8 +146,12 @@ if 'email_failed' not in st.session_state:
 
 
 # --- APP LAYOUT ---
-IMAGE_PATH = r"pic4.jpg"
-load_css(IMAGE_PATH)
+def get_base64(image_path):
+    with open(image_path, "rb") as f:
+        return base64.b64encode(f.read()).decode()
+
+background_path = "bg2.jpg"
+img_base64 = get_base64(background_path)
 
 st.markdown('<h1 class="main-title">Registration Info</h1>', unsafe_allow_html=True)
 
@@ -235,4 +239,5 @@ def hide_sidebar():
     """, unsafe_allow_html=True)
 
 # --- Call the function at the top of your app's script ---
+
 hide_sidebar()
