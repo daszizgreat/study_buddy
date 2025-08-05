@@ -84,6 +84,10 @@ def load_css(image_path):
             margin-top: 5rem; 
             margin-bottom: 5rem;
         }}
+        .stApp {{
+            background: url("data:image/jpg;base64,{img_base64}") no-repeat center center fixed;
+            background-size: cover;
+        }}
 
         .stTextInput label, .stDateInput label, .stSelectbox label {{
             color: #FFFFFF !important; font-weight: bold;
@@ -146,13 +150,25 @@ if 'email_failed' not in st.session_state:
 
 
 # --- APP LAYOUT ---
+@st.cache_data
+def get_img_as_base64(file):
+    """Reads an image file and returns its base64 encoded version."""
+    try:
+        with open(file, "rb") as f:
+            data = f.read()
+        return base64.b64encode(data).decode()
+    except FileNotFoundError:
+        st.error(f"Background image file not found. Make sure 'bg.jpg' is in the same folder as your script.")
+        return None
+
+# Use the function to get the encoded image
+# Ensure you have an image named 'bg.jpg' in your project folder
 def get_base64(image_path):
     with open(image_path, "rb") as f:
         return base64.b64encode(f.read()).decode()
 
 background_path = "pic4.jpg"
 img_base64 = get_base64(background_path)
-
 st.markdown('<h1 class="main-title">Registration Info</h1>', unsafe_allow_html=True)
 
 # --- PAGE LOGIC ---
@@ -241,4 +257,5 @@ def hide_sidebar():
 # --- Call the function at the top of your app's script ---
 
 hide_sidebar()
+
 
