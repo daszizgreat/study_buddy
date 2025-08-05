@@ -42,29 +42,35 @@ Team Nexus
         st.error(f"Failed to send confirmation email: {e}")
         return False
 
-def get_image_as_base64(path):
-    """Encodes a local image file into a base64 string for CSS."""
-    if not os.path.exists(path):
-        st.error(f"Image not found at path: {path}")
+# --- BACKGROUND IMAGE & CSS (Applying your successful logic) ---
+
+def get_base64_image(image_path):
+    """Reads an image file and returns its base64 encoded version."""
+    if not os.path.exists(image_path):
+        st.error(f"Image not found at path: {image_path}")
         return None
-    with open(path, "rb") as image_file:
+    with open(image_path, "rb") as image_file:
         return base64.b64encode(image_file.read()).decode()
 
-def load_css(image_path):
-    """Applies custom CSS styling and a background image."""
-    base64_image = get_image_as_base64(image_path)
-    background_style = f"background-image: url(data:image/jpeg;base64,{base64_image});" if base64_image else "background-color: #2e2e2e;"
-    
-    css = f"""
+def hide_sidebar():
+    """Hides the default Streamlit sidebar."""
+    st.markdown("""<style> [data-testid="stSidebar"] { display: none; } </style>""", unsafe_allow_html=True)
+
+# 1. Encode the image
+background_image_path = "pic4.jpg" 
+img_base64 = get_base64_image(background_image_path)
+
+# 2. Apply the CSS
+if img_base64:
+    st.markdown(f"""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Gaegu:wght@700&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap');
         
+        /* This is your successful CSS implementation */
         .stApp {{
-            {background_style}
+            background: url("data:image/jpg;base64,{img_base64}") no-repeat center center fixed;
             background-size: cover;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
         }}
         
         .main-title {{
@@ -72,7 +78,8 @@ def load_css(image_path):
             color: black; padding-bottom: 1rem;
         }}
         
-        div[data-testid="stForm"], div[data-testid="stVerticalBlock"] {{
+        /* Styling for the form container */
+        div[data-testid="stForm"], div.st-emotion-cache-1r6slb0 {{
             background-color: rgba(46, 51, 56, 0.85);
             backdrop-filter: blur(15px);
             border-radius: 20px;
@@ -96,24 +103,13 @@ def load_css(image_path):
             transform: scale(1.05);
         }}
     </style>
-    """
-    st.markdown(css, unsafe_allow_html=True)
-
-def hide_sidebar():
-    """Hides the default Streamlit sidebar."""
-    st.markdown("""
-        <style>
-            [data-testid="stSidebar"] { display: none; }
-        </style>
     """, unsafe_allow_html=True)
 
-# --- INITIALIZATION ---
+# --- HIDE SIDEBAR ---
 hide_sidebar()
-load_css("pic4.jpg")
 
 # --- MONGODB CONNECTION ---
 MONGO_CONNECTION_STRING = "mongodb+srv://soumyadeepdas2511:dxRsCQDq7YQSc1vh@cluster0.zmm4k.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
-
 @st.cache_resource
 def get_mongo_client():
     try:
@@ -186,7 +182,7 @@ if not st.session_state.registration_complete:
                 except Exception as e:
                     st.error(f"An error occurred during registration: {e}")
 else:
-    # Use st.container() for a reliable way to group elements for styling
+    # Use a container for the success message to apply background style
     with st.container():
         st.balloons()
         st.success(f"✅ Welcome aboard, {st.session_state.user_name}!")
